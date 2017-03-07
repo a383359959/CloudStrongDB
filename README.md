@@ -77,7 +77,12 @@ $data['username'] = 'admin';
 $data['password'] = md5('admin');
 M('admin')->where('id = 1')->save($data,true);
 
-// 创建函数
+/*
+*	可以像ThinkPHP那样做成函数调用
+*	@param $table string 表名称
+*	@param $alias string 别名，多用于关联表
+*	@return object 返回模型实例
+*/
 function M($table,$alias = ''){
 	$_CFG = array(
 		'DB_HOST' => 'localhost',
