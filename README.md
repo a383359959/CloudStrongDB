@@ -47,6 +47,51 @@ add|add($arr,$esql = false)|arr（必须）：要新增的数据，仅支持数�
 save|save($arr,$esql = false)|arr（必须）：需要修改的数据，仅支持数组</br>esql（可选）：如果为true输出SQL语句|返回资源id
 delete|delete($esql = false)|$esql（可选）：如果为true输出SQL语句|返回资源id
 
+# 举例
+
+```php
+// 返回一位数组
+$find = M('users')->where('id = 1')->find();
+
+// 返回二维数组
+$list = M('users')->order('id desc')->select();
+
+// 多表联查
+$list = M('users','a')->field('username')->join('users_store','b','a.userid = b.userid')->join('users_name','c','c.userid = b.userid')->select();
+
+// 增
+$data['username'] = 'admin';
+$data['password'] = md5('admin');
+M('admin')->add($data);
+
+// 删
+M('admin')->where('id = 1')->delete();
+
+// 改
+$data['username'] = 'admin';
+$data['password'] = md5('admin');
+M('admin')->where('id = 1')->save($data);
+
+// 调试输出SQL语句
+$data['username'] = 'admin';
+$data['password'] = md5('admin');
+M('admin')->where('id = 1')->save($data,true);
+
+// 创建函数
+function M($table,$alias = ''){
+	$_CFG = array(
+		'DB_HOST' => 'localhost',
+		'DB_PORT' => 3306,
+		'DB_USER' => 'root',
+		'DB_PASS' => 'root',
+		'DB_PREFIX' => 'ecs_',
+		'DB_NAME' => 'b2b2'
+	);
+	$model = new CloudStrongDB($_CFG);
+	return $model->table($table,$alias);
+}
+```
+
 # 关于
 
 作者：邱昊
