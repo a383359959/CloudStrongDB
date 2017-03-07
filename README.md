@@ -6,8 +6,13 @@
 
 连贯操作|用法|参数|返回值
 -------------|-------------|-------------|-------------
-table|table($name,$alias = '')|table（必须）：数据表名称，支持操作多个表，支持字符串、数组和对象</br>parse（可选）预处理参数，详见14.3防止SQL注入 查询条件预处理|当前模型实例
-单元格内容l|单元格内容
+table|table($name,$alias = '')|name（必须）：数据表名称</br>alias（可选）：表的别名
+field|field($string = '')|string（可选）：字段名称
+where|where($string = '')|string（可选）：搜索条件
+join|join($name,$alias = '',$on = '')|name（必须）：关联表名称</br>alias（可选）：表的别名</br>on（可选）：关联条件
+order|order($string = '')|string（可选）：排序
+group|group($string = '')|string（可选）：分组
+limit|limit($string = '')|string（可选）：限制数量
 
 # 关于
 
