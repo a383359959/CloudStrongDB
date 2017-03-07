@@ -2,6 +2,29 @@
 
 数据库操作类
 
+# 使用方法
+
+```php
+/*
+*	可以像ThinkPHP那样做成函数调用
+*	@param $table string 表名称
+*	@param $alias string 别名，多用于关联表
+*	@return object 返回模型实例
+*/
+function M($table,$alias = ''){
+	$_CFG = array(
+		'DB_HOST' => 'localhost',
+		'DB_PORT' => 3306,
+		'DB_USER' => 'root',
+		'DB_PASS' => 'root',
+		'DB_PREFIX' => 'ecs_',
+		'DB_NAME' => 'b2b2'
+	);
+	$model = new CloudStrongDB($_CFG);
+	return $model->table($table,$alias);
+}
+```
+
 # 连贯方法
 
 连贯操作|用法|参数|返回值
