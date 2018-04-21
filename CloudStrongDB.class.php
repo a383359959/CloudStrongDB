@@ -16,19 +16,19 @@ class CloudStrongDB{
 	public $link = null;
 
 	public $options = array(
-		'table' => '',
-		'field' => '',
-		'where' => '',
-		'join' => '',
-		'order' => '',
+		'YTHINK_TABLE' => '',
+		'field' => '*',
+		'YTHINK_WHERE' => '',
+		'YTHINK_JOIN' => '',
+		'YTHINK_ORDER' => '',
 		'group' => '',
 		'limit' => ''
 	);
 
 	public $sqls = array(
-		'select' => 'SELECT field FROM table join where group order limit',
-		'add'  => 'INSERT INTO table SET options',
-		'save' => 'UPDATE table SET options where',
+		'select' => 'SELECT field FROM YTHINK_TABLE YTHINK_JOIN YTHINK_WHERE group YTHINK_ORDER limit',
+		'add'  => 'INSERT INTO YTHINK_TABLE SET options',
+		'save' => 'UPDATE YTHINK_TABLE SET options YTHINK_WHERE',
 		'delete' => 'DELETE FROM table where'
 	);
 
@@ -43,6 +43,7 @@ class CloudStrongDB{
 		$host = empty($this->config['DB_PORT']) ? $this->config['DB_HOST'].':3306' : $this->config['DB_HOST'].':'.$this->config['DB_PORT'];
 		$this->link = mysqli_connect($host,$this->config['DB_USER'],$this->config['DB_PASS'],$this->config['DB_NAME']);
 		if(!$this->link) $this->error('对不起，数据库连接失败');
+		mysqli_query($this->link,'SET NAMES UTF8');
 	}
 
 	public function check_table($name){
@@ -56,12 +57,12 @@ class CloudStrongDB{
 	}
 
 	public function table($name,$alias = ''){
-		$this->options['table'] = empty($name) ? '' : $this->config['DB_PREFIX'].$name;
+		$this->options['YTHINK_TABLE'] = empty($name) ? '' : $this->config['DB_PREFIX'].$name;
 		$check = $this->check_table($name);
 		if(!$check) $this->error('对不起，'.$name.'数据库不存在');
-		if(empty($this->options['table'])) $this->error('请填写表名');
-		$this->options['table'] = '`'.$this->options['table'].'`';
-		if(!empty($alias)) $this->options['table'] .= ' AS '.$alias;
+		if(empty($this->options['YTHINK_TABLE'])) $this->error('请填写表名');
+		$this->options['YTHINK_TABLE'] = '`'.$this->options['YTHINK_TABLE'].'`';
+		if(!empty($alias)) $this->options['YTHINK_TABLE'] .= ' AS '.$alias;
 		return $this;
 	}
 
@@ -70,23 +71,23 @@ class CloudStrongDB{
 		return $this;
 	}
 
-	public function join($name,$alias = '',$on = ''){
+	public function join($name,$alias = '',$on = '',$type = 'LEFT'){
 		if(empty($name)) $this->error('关联表名不能为空');
 		if(empty($on)) $this->error('关联条件不能为空');
 		$p = $this->config['DB_PREFIX'];
 		$alias = empty($alias) ? $p.$name : $p.$name.' AS '.$alias;
 		$on = empty($on) ? '' : ' ON '.$on;
-		$this->options['join'][] = 'LEFT JOIN '.$alias.$on;
+		$this->options['YTHINK_JOIN'][] = $type.' JOIN '.$alias.$on;
 		return $this;
 	}
 
 	public function where($string){
-		if(!empty($string)) $this->options['where'] = 'WHERE '.$string;
+		if(!empty($string)) $this->options['YTHINK_WHERE'] = 'WHERE '.$string;
 		return $this;
 	}
 
 	public function order($string){
-		if(!empty($string)) $this->options['order'] = 'ORDER BY '.$string;
+		if(!empty($string)) $this->options['YTHINK_ORDER'] = 'ORDER BY '.$string;
 		return $this;
 	}
 
@@ -103,15 +104,20 @@ class CloudStrongDB{
 	public function select($esql = false){
 		$arr = array();
 		$sql = $this->sqls['select'];
+		
 		foreach($this->options as $key => $value){
-			if($key != 'join'){
+			if($key != 'YTHINK_JOIN'){
 				$sql = str_replace($key,$value,$sql);
 			}else{
-				$join = '';
-				foreach($value as $k => $v){
-					$join .= $v.' ';
+				if($value){
+					$join = '';
+					foreach($value as $k => $v){
+						$join .= $v.' ';
+					}
+					$sql = str_replace($key,$join,$sql);
+				}else{
+					$sql = str_replace($key,$join,$sql);
 				}
-				$sql = str_replace($key,$join,$sql);
 			}
 		}
 		if($esql) die($sql);
@@ -143,7 +149,7 @@ class CloudStrongDB{
 	public function add($arr,$esql = false){
 		$options = $this->get_arr($arr);
 		$sql = $this->sqls['add'];
-		$sql = str_replace('table',$this->options['table'],$sql);
+		$sql = str_replace('YTHINK_TABLE',$this->options['YTHINK_TABLE'],$sql);
 		$sql = str_replace('options',implode(',',$options),$sql);
 		if($esql) die($sql);
 		if($this->query($sql)) return mysqli_insert_id($this->link);
@@ -152,9 +158,9 @@ class CloudStrongDB{
 	public function save($arr,$esql = false){
 		$options = $this->get_arr($arr);
 		$sql = $this->sqls['save'];
-		$sql = str_replace('table',$this->options['table'],$sql);
+		$sql = str_replace('YTHINK_TABLE',$this->options['YTHINK_TABLE'],$sql);
 		$sql = str_replace('options',implode(',',$options),$sql);
-		$sql = str_replace('where',$this->options['where'],$sql);
+		$sql = str_replace('YTHINK_WHERE',$this->options['YTHINK_WHERE'],$sql);
 		if($esql) die($sql);
 		return $this->query($sql);
 	}
